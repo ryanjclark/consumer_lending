@@ -10,7 +10,7 @@ pylint-flask
 flask-API
 requests
 flask
-flassger
+flasgger
 pytest-flask
 pytest-cov
 matplotlib
