@@ -7,8 +7,4 @@ lint:
 test:
 	@cd tests; pytest test_*.py
 
-# test:
-# 	python -m pytest 
-
-all:
-	install lint test
+all: install lint test

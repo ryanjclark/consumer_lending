@@ -22,7 +22,7 @@ log = logger(__name__)
 def cli():
     """CSV Operations Tool
     """
-@cli.command("cvsops")
+@cli.command("csvops")
 @click.option('--file', help='Name of csv file')
 @click.option('--groupby', help='GroupBy Column Name')
 @click.option('--applyname', help='Apply Column Name')
@@ -30,7 +30,7 @@ def cli():
 def agg(file,groupby, applyname, func):
     """Operates on a groupby column in a csv file and applies a function
     Example Usage:
-   ./csvcli.py cvsops --file ext/input.csv --groupby last_name --applyname count --func npmedian
+   ./csvcli.py csvops --file ext/input.csv --groupby last_name --applyname count --func npmedian
     Processing csvfile: ext/input.csv and groupby name: last_name and applyname: count
     2017-06-22 14:07:52,532 - nlib.utils - INFO - Loading appliable functions/plugins: npmedian
     2017-06-22 14:07:52,533 - nlib.utils - INFO - Loading appliable functions/plugins: npsum
