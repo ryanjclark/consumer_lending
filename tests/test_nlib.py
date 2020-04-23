@@ -1,4 +1,4 @@
-"""pytest tests for library"""
+"""pytest tests for command line tooling called csvops"""
 
 import pytest
 import sys
