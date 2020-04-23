@@ -16,4 +16,4 @@ pytest-cov
 matplotlib
 seaborn
 numpy
-
+gunicorn
