@@ -17,3 +17,10 @@ matplotlib
 seaborn
 numpy
 gunicorn
+google-cloud
+google-cloud-core
+google-cloud-pubsub
+google-cloud-datastore
+google-cloud-spanner
+google-cloud-storage
+grpcio==1.27.2
