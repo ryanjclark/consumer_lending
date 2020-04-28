@@ -130,3 +130,6 @@ dmypy.json
 
 # GCP Keys
 keys.json
+
+# cloud-sql-proxy
+/cloud_sql_proxy

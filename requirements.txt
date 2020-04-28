@@ -5,11 +5,15 @@ click
 pandas
 sensible
 ipython
-flask
+sqlalchemy
 pylint-flask
 flask-API
 requests
 flask
+Flask-Bootstrap
+Flask-WTF
+Flask-PageDown
+Flask-Moment
 flasgger
 pytest-flask
 pytest-cov
@@ -24,3 +28,4 @@ google-cloud-datastore
 google-cloud-spanner
 google-cloud-storage
 grpcio==1.27.2
+pymysql
