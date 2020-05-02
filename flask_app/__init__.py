@@ -137,6 +137,7 @@ def upload():
     score_int = str(score)
     return score_int
 
+
 @app.errorhandler(500)
 def server_error(e):
     logging.exception('An error occurred during a request.')
