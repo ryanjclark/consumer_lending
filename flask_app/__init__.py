@@ -1,7 +1,7 @@
 import logging
 import os
 import datetime
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, Request
 from flask import jsonify
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
@@ -10,11 +10,14 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 import sqlalchemy
+from google.cloud import storage
+
 
 db_user = os.environ.get("DB_USER")
 db_pass = os.environ.get("DB_PASS")
 db_name = os.environ.get("DB_NAME")
 cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
+CLOUD_STORAGE_BUCKET = os.environ.get('CLOUD_STORAGE_BUCKET')
 
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'root'
@@ -91,6 +94,42 @@ def index():
 def sentiment(desc):
     desc_json = {"description": desc}
     return jsonify(desc_json)
+
+
+@app.route('/form')
+def index_form():
+    return """
+<form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type="submit">
+</form>
+"""
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    """Process the uploaded file and upload it to Google Cloud Storage."""
+    uploaded_file = request.files.get('file')
+
+    if not uploaded_file:
+        return 'No file uploaded.', 400
+
+    # Create a Cloud Storage client.
+    gcs = storage.Client()
+
+    # Get the bucket that the file will be uploaded to.
+    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+
+    # Create a new blob and upload the file's content.
+    blob = bucket.blob(uploaded_file.filename)
+
+    blob.upload_from_string(
+        uploaded_file.read(),
+        content_type=uploaded_file.content_type
+    )
+
+    # The public URL can be used to directly access the uploaded file via HTTP.
+    return blob.public_url
 
 
 @app.errorhandler(500)

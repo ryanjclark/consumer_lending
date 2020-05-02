@@ -19,8 +19,13 @@ resources:
 beta_settings:
   cloud_sql_instances: lending-274219:us-central1:lending-storage
 
+includes:
+  - env_variables.yaml
+
 # env_variables:
 #   CLOUD_SQL_CONNECTION_NAME: lending-274219:us-central1:lending-storage
 #   DB_USER: root
 #   DB_PASS: root
 #   DB_NAME: lending-club-db
+#   CLOUD_STOREAGE_BUCKET: lending-274219.appspot.com
+

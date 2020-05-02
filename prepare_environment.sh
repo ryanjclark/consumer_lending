@@ -17,15 +17,8 @@ echo "Installing Python libraries"
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "Creating Datastore entities"
-python add_entities.py
-
-echo "Creating lending-account Service Account"
-gcloud iam service-accounts create lending-account --display-name "Lending Account"
-gcloud iam service-accounts keys create key.json --iam-account=lending-account@$DEVSHELL_PROJECT_ID.iam.gserviceaccount.com
-export GOOGLE_APPLICATION_CREDENTIALS=key.json
-
-echo "Setting lending-account IAM Role"
-gcloud projects add-iam-policy-binding $DEVSHELL_PROJECT_ID --member serviceAccount:lending-account@$DEVSHELL_PROJECT_ID.iam.gserviceaccount.com --role roles/owner
+echo "Creating Cloud Pub/Sub topic"
+gcloud beta pubsub topics create lending-descr
+gcloud beta pubsub subscriptions create worker-subscription --topic lending-descr
 
 echo "Project ID: $DEVSHELL_PROJECT_ID"
