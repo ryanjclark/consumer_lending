@@ -11,6 +11,8 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 import sqlalchemy
 from google.cloud import storage
+import flask_app.gcp.languageapi
+
 
 
 db_user = os.environ.get("DB_USER")
@@ -99,38 +101,41 @@ def sentiment(desc):
 @app.route('/form')
 def index_form():
     return """
-<form method="POST" action="/upload" enctype="multipart/form-data">
-    <input type="file" name="file">
+<form method="POST" action="/analyze" enctype="multipart/form-data">
+    <input type="text" name="description">
     <input type="submit">
 </form>
 """
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/analyze', methods=['POST'])
 def upload():
     """Process the uploaded file and upload it to Google Cloud Storage."""
-    uploaded_file = request.files.get('file')
+    # uploaded_file = request.text.get('description')
 
-    if not uploaded_file:
-        return 'No file uploaded.', 400
+    # if not uploaded_file:
+    #     return 'No file uploaded.', 400
 
     # Create a Cloud Storage client.
-    gcs = storage.Client()
+    # gcs = storage.Client()
 
     # Get the bucket that the file will be uploaded to.
-    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+    # bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
 
-    # Create a new blob and upload the file's content.
-    blob = bucket.blob(uploaded_file.filename)
+    # # Create a new blob and upload the file's content.
+    # blob = bucket.blob(uploaded_file.filename)
 
-    blob.upload_from_string(
-        uploaded_file.read(),
-        content_type=uploaded_file.content_type
-    )
+    # blob.upload_from_string(
+    #     uploaded_file.read(),
+    #     content_type=uploaded_file.content_type
+    # )
 
     # The public URL can be used to directly access the uploaded file via HTTP.
-    return blob.public_url
-
+    # return blob.public_url
+    description = request.form['description']
+    score = flask_app.gcp.languageapi.analyze(description)
+    score_int = str(score)
+    return score_int
 
 @app.errorhandler(500)
 def server_error(e):
