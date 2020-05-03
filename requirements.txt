@@ -27,5 +27,6 @@ google-cloud-pubsub
 google-cloud-datastore
 google-cloud-spanner
 google-cloud-storage
+google-cloud-language
 grpcio==1.27.2
 pymysql

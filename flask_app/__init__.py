@@ -1,8 +1,8 @@
 import logging
 import os
 import datetime
-from flask import Flask, render_template, request, Response, Request
-from flask import jsonify
+from flask import Flask, render_template, request, Response
+from flask import jsonify, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_pagedown import PageDown
@@ -11,8 +11,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 import sqlalchemy
 from google.cloud import storage
-import flask_app.gcp.languageapi
-
+import flask_app.gcp.languageapi as nlp
 
 
 db_user = os.environ.get("DB_USER")
@@ -70,26 +69,54 @@ db = sqlalchemy.create_engine(
 )
 
 
-class NameForm(FlaskForm):
-    name = StringField(
+class DescrForm(FlaskForm):
+    descr = StringField(
         'Send applicant free-form description for sentiment score',
         validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     form = RegistrationForm(request.form)
+#     if request.method == 'POST' and form.validate():
+#         user = User(form.username.data, form.email.data,
+#                     form.password.data)
+#         db_session.add(user)
+#         flash('Thanks for registering')
+#         return redirect(url_for('login'))
+#     return render_template('register.html', form=form)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
+    form = DescrForm()
     data = []
     with db.connect() as conn:
-        # Execute the query and fetch all results
         recent_data = conn.execute(
             "SELECT loan_amnt, settlement_date FROM loans " "ORDER BY settlement_date DESC LIMIT 5"
         ).fetchall()
-        # Convert the results into a list of dicts representing votes
         for row in recent_data:
             data.append({"loan_amnt": row[0], "settlement_date": row[1]})
-    return render_template('index.html', form=form, recent_data=data)
+    if request.method == 'POST' and form.validate():
+        description = form.descr.data
+        form.descr.data = ''
+        session['score'] = nlp.analyze(description)
+        return redirect(url_for('index'))
+    return render_template('index.html',
+                           form=form,
+                           recent_data=data,
+                           score=session.get('score'))
+
+
+@app.route('/form2', methods=['GET', 'POST'])
+def index_form2():
+    form = DescrForm()
+    if request.method == 'POST' and form.validate():
+        description = form.descr.data
+        form.descr.data = ''
+        session['score'] = nlp.analyze(description)
+        return redirect(url_for('index_form2'))
+    return render_template('index.html', form=form, score=session.get('score'))
 
 
 @app.route('/sentiment/<desc>')
@@ -133,7 +160,7 @@ def upload():
     # The public URL can be used to directly access the uploaded file via HTTP.
     # return blob.public_url
     description = request.form['description']
-    score = flask_app.gcp.languageapi.analyze(description)
+    score = nlp.analyze(description)
     score_int = str(score)
     return score_int
 

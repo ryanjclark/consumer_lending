@@ -18,10 +18,15 @@
         <div class="col">
             <form method="POST">
                 {{ form.hidden_tag() }}
-                {{ form.name.label }} {{ form.name(id='my-text-field') }}
+                {{ form.descr.label }} {{ form.descr(id='free-form-descr') }}
                 {{ form.submit() }}
             </form>
         </div>
+        <div class="col">
+            <p>The sentiment score from free-form field is: {{ score }}</p>
+        </div>
+    </div>
+    <div class="row">
         <div class="col">
             <h4>Most recent loans in the db</h4>
             {% for data in recent_data %}
