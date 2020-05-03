@@ -4,9 +4,6 @@ import time
 import json
 from flask_app.gcp import pubsub, languageapi
 
-"""
-Configure logging
-"""
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 log = logging.getLogger()
 
@@ -30,6 +27,7 @@ def pubsub_callback(message):
     score = languageapi.analyze(str(data['lending-descr']))
     log.info('Score: {}'.format(score))
     data['score'] = score
+    # TODO: save scoring to CloudSQL
     # datastore.save_feedback(data)
     # log.info('Feedback saved')
 
@@ -39,7 +37,6 @@ Pulls messages and loops forever while waiting
 - initiate pull 
 - loop once a minute, forever
 """
-
 
 def main():
     log.info('Worker starting...')
