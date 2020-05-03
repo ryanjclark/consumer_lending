@@ -1,15 +1,7 @@
-#!/usr/bin/env python
-"""
-Commandline Tool For Doing CSV operations:
-    * Aggregation
-    * TBD
-"""
-
+# Command line tool for aggregation with pandas:
 import sys
-
 import click
 from sensible.loginit import logger
-
 import nlib
 from nlib import csvops
 from nlib import utils
@@ -47,14 +39,15 @@ def agg(file,groupby, applyname, func):
         sys.exit(1)
 
     click.echo("Processing csvfile: {file} and groupby name: {groupby} and applyname: {applyname}".\
-            format(file=file, groupby=groupby, applyname=applyname))
-    #Load Plugins and grab correct one
+               format(file=file, groupby=groupby, applyname=applyname))
+    # Load Plugins and grab correct one
     plugins = utils.plugins_map()
     appliable_func = plugins[func]
     res = csvops.group_by_operations(data=file, 
-            groupby_column_name=groupby, apply_column_name=applyname,
-            func=appliable_func)
+                                     groupby_column_name=groupby, apply_column_name=applyname,
+                                     func=appliable_func)
     click.echo(res)
+
 
 @cli.command("listfuncs")
 def listfuncs():

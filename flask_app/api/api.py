@@ -1,6 +1,7 @@
 import json
 from flask import Response
-from flask_app.gcp import datastore, pubsub
+from flask_app.gcp import pubsub
+
 
 def publish_feedback(feedback):
     result = pubsub.publish_feedback(feedback)

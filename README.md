@@ -2,4 +2,6 @@
 
 
 # consumer_lending
-Machine learning model to predict credit risk of consumers deployed to GCP App Engine
+A machine learning model that predicts credit risk of consumers using classification and 
+natural language processing. This app is in development and deployed with 
+GCP App Engine to https://lending-274219.uc.r.appspot.com/

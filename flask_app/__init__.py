@@ -71,7 +71,7 @@ db = sqlalchemy.create_engine(
 
 class DescrForm(FlaskForm):
     descr = StringField(
-        'Send applicant free-form description for sentiment score',
+        'Why do you need this loan today?',
         validators=[DataRequired()])
     submit = SubmitField('Submit')
 
@@ -106,17 +106,6 @@ def index():
                            form=form,
                            recent_data=data,
                            score=session.get('score'))
-
-
-@app.route('/form2', methods=['GET', 'POST'])
-def index_form2():
-    form = DescrForm()
-    if request.method == 'POST' and form.validate():
-        description = form.descr.data
-        form.descr.data = ''
-        session['score'] = nlp.analyze(description)
-        return redirect(url_for('index_form2'))
-    return render_template('index.html', form=form, score=session.get('score'))
 
 
 @app.route('/sentiment/<desc>')
