@@ -2,54 +2,16 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% block title %}Consumer Credit Portal{% endblock %}
 
-<H1>Testing index within templates</H1>
 {% block page_content %}
 <div class="page-header">
     <h1>Welcome to the Consumer Credit Portal</h1>
 </div>
 <div class="container">
     <div class="row">
-        <div class="col">
-            <p>
-            </p>
+        <div class="col">
+            <h4>Begin application here:</h4>
+            {{ wtf.quick_form(form) }}
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <form method="POST">
-                {{ form.hidden_tag() }}
-                {{ form.descr.label }} {{ form.descr(id='free-form-descr') }}
-                {{ form.submit() }}
-            </form>
-        </div>
-        <div class="col">
-            <p>The sentiment score from free-form field is: {{ score }}</p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <h4>Most recent loans in the db</h4>
-            {% for data in recent_data %}
-            <li>
-                <span class="title">
-                    Loan for <b>${{data.loan_amnt}}</b>
-                </span>
-                <p>was settled on {{data.settlement_date}}</p>
-            </li>
-            {% endfor %}
-        </div>
-    </div>    
 </div>
-
-
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, '.index') }}
-</div>
-{% endif %}
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
-{{ pagedown.include_pagedown() }}
 {% endblock %}
