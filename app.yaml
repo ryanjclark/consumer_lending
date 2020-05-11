@@ -17,7 +17,7 @@ resources:
   disk_size_gb: 10
 
 beta_settings:
-  cloud_sql_instances: lending-274219:us-central1:lending-storage
+  cloud_sql_instances: lending-274219:us-central1:loan-data
 
 includes:
   - env_variables.yaml
