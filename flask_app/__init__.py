@@ -5,9 +5,9 @@ from flask import session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_pagedown import PageDown
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField
-from wtforms.validators import DataRequired
+from flask_wtf import FlaskForm, RecaptchaField
+from wtforms import StringField, SubmitField, IntegerField, DecimalField, SelectField
+from wtforms.validators import DataRequired, Length, NumberRange
 import sqlalchemy
 import flask_app.gcp.languageapi as nlp
 
@@ -48,14 +48,18 @@ db = sqlalchemy.create_engine(
 
 
 class ApplicationForm(FlaskForm):
-    emp = IntegerField(
-        u'How long have you been with your employer? (1-11)',
+    emp = SelectField(
+        u'How many years have you been with your employer?',
+        choices=[('1', '<1 year'), ('2', '1 year'), ('3', '2 years'), (4, '3 years'),
+                 ('5', '4 years'), ('6', '5 years'), ('7', '6 years'), (8, '7 years'),
+                 ('9', '8 years'), ('10', '9 years'), ('11', '10 years+')],
         validators=[DataRequired()])
-    home = IntegerField(
+    home = SelectField(
         u'What is your housing status? (1-Rent, 2-Other, 3-Mortgage, 4-Own)',
+        choices=[('1', 'Rent'), ('4', 'Own'), ('3', 'Mortgage'), ('2', 'Other')],
         validators=[DataRequired()])
     zipcode = IntegerField(
-        u'What is the first 3 digits of your zip code?',
+        u'What are the first 3 digits of your zip code?',
         validators=[DataRequired()])
     acc = IntegerField(
         u'How many accounts have you ever had in your name?',
@@ -63,12 +67,12 @@ class ApplicationForm(FlaskForm):
     inc = IntegerField(
         u'What is your annual income? (no commas)',
         validators=[DataRequired()])
-    ratio = IntegerField(
+    ratio = DecimalField(
         u'What is your debt-to-income ratio? (round to 2 decimals)',
         validators=[DataRequired()])
     descr_input = StringField(
         u'Why do you need this loan? (enter text)',
-        validators=[DataRequired()])
+        validators=[DataRequired(), Length(max=200)])
     submit = SubmitField('Submit')
 
 
@@ -78,7 +82,7 @@ def index():
     form = ApplicationForm(request.form)
     # Form submission
     if request.method == 'POST' and form.validate_on_submit():
-        # Receive values from form and set the form value to '' for next session
+        # Receive values from form and set the form value to '' for session
         emp_length_cat = (request.form.get('emp'))
         home_status = (request.form.get('home'))
         zip3 = (request.form.get('zipcode'))
