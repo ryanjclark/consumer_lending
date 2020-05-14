@@ -10,13 +10,46 @@ from wtforms import StringField, SubmitField, IntegerField, DecimalField, Select
 from wtforms.validators import DataRequired, Length, NumberRange
 import sqlalchemy
 import flask_app.gcp.languageapi as nlp
-
+import googleapiclient.discovery
 
 db_user = os.environ.get("DB_USER")
 db_pass = os.environ.get("DB_PASS")
 db_name = os.environ.get("DB_NAME")
 cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
 CLOUD_STORAGE_BUCKET = os.environ.get('CLOUD_STORAGE_BUCKET')
+
+
+
+def predict_json(project, model, instances, version=None):
+    """Send json data to a deployed model for prediction.
+    Args:
+        project (str): project where the AI Platform Prediction Model is deployed.
+        model (str): model name.
+        instances ([[float]]): List of input instances, where each input
+        instance is a list of floats.
+        version: str, version of the model to target.
+    Returns:
+        Mapping[str: any]: dictionary of prediction results defined by the
+            model.
+    """
+    # Create the AI Platform Prediction service object.
+    # To authenticate set the environment variable
+    # GOOGLE_APPLICATION_CREDENTIALS=<path_to_service_account_file>
+    service = googleapiclient.discovery.build('ml', 'v1')
+    name = 'projects/{}/models/{}'.format(project, model)
+
+    if version is not None:
+        name += '/versions/{}'.format(version)
+
+    response = service.projects().predict(
+        name=name,
+        body={'instances': instances}
+    ).execute()
+
+    if 'error' in response:
+        raise RuntimeError(response['error'])
+
+    return response['predictions']
 
 
 # Instantiate app
@@ -50,8 +83,8 @@ db = sqlalchemy.create_engine(
 class ApplicationForm(FlaskForm):
     emp = SelectField(
         u'How many years have you been with your employer?',
-        choices=[('1', '<1 year'), ('2', '1 year'), ('3', '2 years'), (4, '3 years'),
-                 ('5', '4 years'), ('6', '5 years'), ('7', '6 years'), (8, '7 years'),
+        choices=[('1', '<1 year'), ('2', '1 year'), ('3', '2 years'), ('4', '3 years'),
+                 ('5', '4 years'), ('6', '5 years'), ('7', '6 years'), ('8', '7 years'),
                  ('9', '8 years'), ('10', '9 years'), ('11', '10 years+')],
         validators=[DataRequired()])
     home = SelectField(
@@ -80,6 +113,8 @@ class ApplicationForm(FlaskForm):
 def index():
     # Set form
     form = ApplicationForm(request.form)
+    # Set prediction
+    pred = None
     # Form submission
     if request.method == 'POST' and form.validate_on_submit():
         # Receive values from form and set the form value to '' for session
@@ -91,6 +126,13 @@ def index():
         dti = (request.form.get('ratio'))
         descr = (request.form.get('descr_input'))
         scores = nlp.analyze(descr)
+        scores = round(scores, 2)
+        # Put features into format the model can receive
+        instances = [[emp_length_cat, home_status, zip3,
+                     total_acc, annual_inc, dti, scores]]
+        # Create prediction
+        pred_list = predict_json('lending-274219', 'clf', instances, version='v9')
+        pred = pred_list[0]
         with db.connect() as conn:
             conn.execute(
                 """INSERT INTO
@@ -102,15 +144,21 @@ def index():
                         annual_inc,
                         dti,
                         descr,
-                        scores)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
+                        scores,
+                        predict)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s, %s)""",
                 (emp_length_cat, home_status, zip3,
-                 total_acc, annual_inc, dti, descr, scores)
+                 total_acc, annual_inc, dti, descr, scores, pred)
             )
-        flash('Thanks for applying')
+        if pred == 1:
+            flash('Our model has predicted you will default, therefore your loan application has been DENIED.', 'danger')
+        elif pred == 0:
+            flash('Our model has predicted you will not default, congratulations you have been APPROVED.', 'info')
+        else:
+            flash('A credit default prediction was not created. Contact support.')
         return redirect(url_for('index'))
     return render_template('index.html',
-                           form=form,
+                           form=form
                            )
 
 

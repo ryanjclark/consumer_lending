@@ -19,7 +19,8 @@ pytest-flask
 pytest-cov
 matplotlib
 seaborn
-scikit-learn
+scikit-learn==0.20.2
+sklearn
 numpy
 gunicorn
 google-cloud
