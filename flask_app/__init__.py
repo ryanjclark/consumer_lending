@@ -162,6 +162,11 @@ def index():
                            )
 
 
+@app.route('/info', methods=['GET', 'POST'])
+def info():
+    return render_template('info.html')
+
+
 @app.errorhandler(500)
 def server_error(e):
     logging.exception('An error occurred during a request.')

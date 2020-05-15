@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Consumer Credit Portal{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>What does this application do?</h1>
+    <span><a href="{{ url_for('index') }}"><button type="button" class="btn btn-outline-primary">Back to the app</button></a></span>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <ul>
+                <li>This application predicts whether the user will default or not for a consumer loan. 
+                    The user submits 7 fields to the application where each is a feature for a machine learning model.
+                    The free-form text field is sent to <strong>Google's Natural Language API</strong> for a sentiment score to
+                    become the 8th feature.
+                </li></br>
+                <li>The model is a random forest classifier written with <strong>SciKit Learn</strong> and hosted by <strong>Google's AI Platform</strong>.
+                    Eight features are used for simplicity. 
+                </li></br>
+                <li>The training data comes from Lending Club's public dataset. 
+                    To mimic user traffic, some of the dataset is partitioned into batches of 500. 
+                    Using <strong>Apache Airflow</strong>, a batch is dropped weekly which triggers the model to retrain.</li></br>
+                <li>A new version of the model is only implemented after passing some logical tests. For instance, if the ratio of 
+                    defaults (about 1 in 10) is outside the bounds of the ratio from the 3 most previous trained models, the new version of the model
+                    is rejected. It is expected that each batch will continuously increase the <strong>area under the PR curve</strong>.</li></br>
+                <li>This app is hosted in the flexible version of Google's App Engine and will integrate easily in <strong>Google's Kubernetes Engine</strong>.
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
