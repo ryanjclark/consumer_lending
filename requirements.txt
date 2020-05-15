@@ -30,5 +30,6 @@ google-cloud-datastore
 google-cloud-spanner
 google-cloud-storage
 google-cloud-language
+google-api-python-client
 grpcio==1.27.2
 pymysql
